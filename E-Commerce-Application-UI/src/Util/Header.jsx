@@ -1,35 +1,153 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { CgProfile } from "react-icons/cg";
 import { IoIosArrowDown } from "react-icons/io";
 import { CiSearch } from "react-icons/ci";
 import { BsBox } from "react-icons/bs";
 import { GoHeart } from "react-icons/go";
+import { PiDotsThreeVerticalBold, PiUserCircle } from "react-icons/pi";
+import { PiStorefront } from "react-icons/pi";
+import { IoSearchOutline } from "react-icons/io5";
+
+import { MdKeyboardArrowUp } from "react-icons/md";
+import { MdKeyboardArrowDown } from "react-icons/md";
+import { TbBoxSeam } from "react-icons/tb";
+import { FaRegBell } from "react-icons/fa6";
+import { PiHeadset } from "react-icons/pi";
+import { BsDownload } from "react-icons/bs";
+import { IoCartOutline } from "react-icons/io5";
+import { LuBoxes } from "react-icons/lu";
 
 const Headers = () => {
+  const user = {
+    userId: "101",
+    username: "Ram",
+    role: "SELLER",
+    authenticated: false,
+    accessExpiration: 3600,
+    refershExpiration: 1296000,
+  };
+  const { username, role, authenticated } = user;
+  const [loginHovered, setLoginHovered] = useState(false);
+  const [optionHovered, setoptionHovered] = useState(false);
+
   return (
-    <div className='flex item-center justify-around text-slate-950 text-slate-100 py-2  border-b-2 border-slate-1 text-center text-lg'>
-    <Link to={"/"}><img src="https://static-assets-web.flixcart.com/batman-returns/batman-returns/p/images/fkheaderlogo_exploreplus-44005d.svg" width="160" height="40" title="Flipkart"/></Link>
-    <section className='flex items-center gap-2 bg-slate-200 w-[32rem] rounded-md'><CiSearch /><input className='w-full text-lg bg-slate-200' type="text" placeholder="Search for Products, Brands and More" value="" ></input></section>
-    <Link to={"/login"} className='relative group transition-all'>
-     <p className='flex items-center justify-around  w-24  rounded-md hover:bg-blue-700 hover:text-white'>
-      <CgProfile />Login <IoIosArrowDown className='rotate-180 transition-all hover:rotate-0'/>
-     </p>
-     <div className=' flex justify-around absolute top-10 hidden w-60 flex-col gap-1 rounded-md bg-white py=3  shadow-md transition-all group-hover:flex '>
-      <Link to={"/register"} className='flex item-center gap-5 '>  New customer? <p className='text-blue-600 '>Sing Up</p></Link>
-      <Link to={"#"} className='flex  gap-2'><CgProfile />My Profile</Link>
-      <Link to={"#"} className='flex gap-2 '><BsBox />Orders</Link>
-      <Link to={"/wishlist"} className='flex gap-2 '><GoHeart /> Wishlist</Link>
-     </div>
-    </Link>
-    <Link to={"/register"} className='flex items-center gap-2'><img src="https://static-assets-web.flixcart.com/batman-returns/batman-returns/p/images/Store-9eeae2.svg" alt="Become a Seller" class="_1XmrCc"/>Become a seller</Link>
-   
+    <header className="border-b-2 border-blue-900 fixed z-50 top-0 font-sans w-screen flex justify-center bg-white">
+      <div className="flex justify-around items-center w-1/2 ">
+        {/* filpkart logo */}
+        <div>
+          <Link to={"/"}>
+            <img src="/src/Images/flipkart-logo.svg" alt="flipkart logo" />
+          </Link>
+        </div>
+        {/* Search Bar */}
+        <div className="rounded-md h-4/6 w-2/5 text-lg flex items-center justify-center bg-blue-50 px-2 py-1">
+          <div className="text-2xl text-slate-500">
+            <IoSearchOutline />
+          </div>
+          <input
+            type="text"
+            placeholder="Search the Product Here!..."
+            className="border-0 rounded-xl bg-blue-50 placeholder:text-slate-500 hover:placeholder:text-slate-400 h-full px-2 py-2 w-full text-gray-700"
+          />
+        </div>
+      </div>
+      {/* login and Register */}
+      <div className="flex justify-around items-center w-1/2 ">
+        <div
+          className=" flex justify-around items-center  hover:bg-blue-500 rounded-md py-3"
+          onMouseEnter={() => setLoginHovered(true)}
+          onMouseLeave={() => setLoginHovered(false)}
+        >
+          <div>
+            <PiUserCircle />
+          </div>
+          <Link to={authenticated ? "/account" : "/login"}>
+            {authenticated ? username : "Login"}
+          </Link>
 
+          <div>
+            {loginHovered ? <MdKeyboardArrowUp /> : <MdKeyboardArrowDown />}
+          </div>
+          
+          {loginHovered ? (
+            <div className="shadow-lg shadow-slate-300 bg-white rounded-sm h-max absolute  top-14 w-1/6 translate-x-2 -translate-y-0.5 flex flex-col justify-center transition-all duration-300">
+              <div className="flex justify-between items-center w-full border-b-2 border-slate-300 p-2">
+                <p className="text-slate-700 ">{authenticated ? "MyProfile" : "New Customer"}</p>
+                <Link
+                  to={authenticated ? "/myprofile" : "/register"}
+                  className="text-blue-800"
+                >
+                  {authenticated ? "" : "Signup"}
+                </Link>
+              </div>
+              <HeaderLink className="text-prussian_blue font-semibold rounded-sm px-2" to="" name="Orders" icon={<TbBoxSeam />} />
+              <HeaderLink className="text-prussian_blue font-semibold rounded-sm px-2" to="" name="WishList" icon={<GoHeart />} />
+            </div>
+          ) : (
+            ""
+          )}
+        </div>
+        {authenticated && role === "CUSTOMER" ? (
+          <div className="flex items-center justify-evenly  w-1/2 ">
+            <HeaderLink icon={<IoCartOutline />} name={"Cart"} link={"/cart"} />
+            <HeaderLink
+              icon={<GoHeart />}
+              name={"WIshlist"}
+              link={"/wishlist"}
+            />
+          </div>
+        ) : authenticated && role === "SELLER" ? (
+          <HeaderLink icon={<LuBoxes />} link={"/orders"} name={"Orders"} />
+        ) : (
+          !authenticated && (
+            <HeaderLink
+              icon={<PiStorefront />}
+              name={"Become a Seller"}
+              link={"/store"}
+            />
+          )
+        )}
+        <div></div>
+
+        <div
+          onMouseEnter={() => setoptionHovered(true)}
+          onMouseLeave={() => setoptionHovered(false)}
+        >
+          <HeaderLink icon={<PiDotsThreeVerticalBold />} name={""} link={""} />
+
+          {optionHovered ? (
+            <div className="shadow-lg shadow-slate-300 bg-white rounded-sm h-max absolute right-0  w-1/6 translate-x-2 -translate-y-0.5 flex flex-col justify-center transition-all duration-1000">
+              <HeaderLink
+                to=""
+                name="NotificationPreference"
+                icon={<FaRegBell />}
+              />
+              <HeaderLink
+                to=""
+                name="24x7 CustomerService"
+                icon={<PiHeadset />}
+              />
+              <HeaderLink to="" name="DownloadApp" icon={<BsDownload />} />
+            </div>
+          ) : (
+            ""
+          )}
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default Headers;
+
+const HeaderLink = ({ link, name, icon }) => {
+  return (
     <div>
-    
+      <Link to={link} className="flex">
+        <div className="mt-0.5 mr-1 hover: text-2xl"> {icon}</div>
+        <div className="px-1 flex justify-center items-center">{name}</div>
+      </Link>
     </div>
-    </div>
-  )
-}
-
-export default Headers
+  );
+};

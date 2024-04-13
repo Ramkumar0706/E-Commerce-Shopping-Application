@@ -1,20 +1,53 @@
-import React from 'react'
+import React from "react";
+import { Link } from "react-router-dom";
 
-function Login() {
+const Login = () => {
+
+ 
+    const adjustLevel=()=>{
+      document.getElementById("myLabel").classList.add('text-xs','text-gray-400','left-15','pb-15');
+    }
+
   return (
-    <div>
-      <form className='mt-32 mx-auto border-2 border-slate-4008 w-96 h-60 flex flex-col justify-evenly items-center rounded-md
-    scale-110'>
-    <div className='text-yellow-800 font-bold text-lg text-center w-full bg-green-300 -mt-4 rounded-t'>Welcome Back!</div>
-    
-    <input className='border-2 border-slate-40@ px-5 py-1' type="text" placeholder='Enter email'/>
-    <input className='border-2 border-slate-400 px-5 py-1' type="password" placeholder='Enter password'/>
-    <input className="border-2 border-yellow-400 px-5 py-1 cursor-pointer rounded-md font-medium transition ease—in-out
-    duration-300 hover:bg-yellow-200 hover: text-sky-708 hover: border-yellow-200 hover:-translate-y-1" type="submit" value='Log In'/>
-    <a className='text-base font-normal' href=''>forgot password?</a>
-    </form>
-    </div>
-  )
-}
+    <section className="mt-8 flex justify-center">
+      <div className="flex-col justify-end   bg-blue-700 h-[500px] w-80">
+        <div className=" flex-col h-[300px]">
+          <div className="mt-8 px pl-10 text-white text-3xl">Login</div>
+          <div className="mt-8 pl-10 text-gray-400 text-lg">
+            Get access to your Orders, Wishlist and Recommendations
+          </div>
+        </div>
 
-export default Login
+        <div className="">
+          <img
+            className=" pl-12"
+            src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/login_img_c4a81e.png"
+          />
+        </div>
+      </div>
+      <div className=" h-[500px] border-2 border-red-100 w-[500px]">
+        <div className="relative mt-8 pl-3 pr-2 ">
+          <form action="post" className=''>          
+            <input id='myInput'onFocus={adjustLevel} className="p-2 border-b-2  w-full outline-none focus:border-blue-700" type="text" />
+            <label id='myLabel' className="absolute left-20 text-lg		">Enter Email</label>
+            <div className='mt-8 text-xs'>By continuing, you agree to Flipkart's Terms of Use and Privacy Policy.</div>
+            <div className='mt-10 w-full h-12 bg-orange-500'>
+              <Link className=" flex justify-center w-full h-12">
+                <span className='mt-3  w-28 whitespace-nowrap   text-white font-bold'>Sign In</span>
+              </Link>
+            </div>
+            {/* <div className='mt-4 w-full h-12 bg-white shadow-lg'>
+              <Link className=" flex justify-center w-full h-12">
+                <span className='text-blue-500 mt-3 whitespace-nowrap font-bold'>Existing User? Login</span>
+              </Link>
+            </div> */}
+
+          </form>
+        </div>
+        </div>
+      
+    </section>
+  );
+};
+
+export default Login
