@@ -5,7 +5,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.retail.ecom.exception.InvalidEmailException;
 import com.retail.ecom.exception.InvalidUserRoleSpecfiedException;
+import com.retail.ecom.exception.OTPExpiredException;
+import com.retail.ecom.exception.OTPInvalidException;
+import com.retail.ecom.exception.RegistrationSessionExpiredException;
 import com.retail.ecom.exception.UserAlreadyExistsByEmailException;
 
 import lombok.AllArgsConstructor;
@@ -27,6 +31,25 @@ public class ApplicationHandler {
 	@ExceptionHandler
 	public ResponseEntity<ErrorStructure<String>> handeleInvalidUserRoleSpecfid(InvalidUserRoleSpecfiedException excption){
 		return errorResponse(HttpStatus.BAD_REQUEST,excption.getMessage() , "UserRole is not specficed correctly");
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handeleOTPInvalidException(OTPInvalidException excption){
+		return errorResponse(HttpStatus.BAD_REQUEST,excption.getMessage() , "enter the valid otp");
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handeleOTPExpiredException(OTPExpiredException excption){
+		return errorResponse(HttpStatus.BAD_REQUEST,excption.getMessage() , "the user enter otp is time out");
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handeleRegistrationSessionExpiredException(RegistrationSessionExpiredException excption){
+		return errorResponse(HttpStatus.BAD_REQUEST,excption.getMessage() , "the user registration session is expired");
+	}
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handeleInvalidEmailException(InvalidEmailException excption){
+		return errorResponse(HttpStatus.BAD_REQUEST,excption.getMessage() , "please enter valid email");
 	}
 
 }

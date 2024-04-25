@@ -19,13 +19,12 @@ import lombok.AllArgsConstructor;
 @RestControllerAdvice
 public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler{
 	private ErrorStructure<Object> structure;
-	
+
 	@Override
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
 			HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 		Map<String,String> message=new HashMap<>();
-	ex.getAllErrors().forEach(error->{
-			//FieldError fe=(FieldError)error;	
+		ex.getAllErrors().forEach(error->{
 			message.put(((FieldError)error).getField(),error.getDefaultMessage());
 		});
 		return ResponseEntity.badRequest().body(

@@ -26,5 +26,6 @@ public class User {
 	private boolean isEmailVerified;
 	private boolean  isDeleted=false;
 	
+	
 
 }
