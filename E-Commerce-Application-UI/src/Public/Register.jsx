@@ -1,95 +1,189 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-const Register = () => {
-  const adjustLevel=()=>{
-    document.getElementById("myLabel").classList.add('text-xs','text-gray-400','left-15','pb-15');
-  }
+const Register = ({ROLE}) => {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [isValidEmail, setIsValidEmail] = useState(true);
   const [password, setPassword] = useState('');
-  const [isValidPassword, setIsValidPassword] = useState(true);
-  const [username, setUsername] = useState('');
-
-  const handleChangeEmail = (event) => {
-      const inputValue = event.target.value;
-      setEmail(inputValue);
-
-      // Regular expression for email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      setIsValidEmail(emailRegex.test(inputValue));
+  const [nameError, setNameError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const navigate=useNavigate();
+  const handleNameChange = (e) => {
+    
+    
+    const formattedName = e.target.value
+      .trim()
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+    setName(formattedName);
+    validateName(formattedName);
   };
-  const handleChangePassword = (event) => {
-    const inputValue = event.target.value;
-    setPassword(inputValue);
 
-    // At least 8 characters, at least one uppercase letter, one lowercase letter, one number, and one special character
-    const passwordRegex = /^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[@$!%?&])[A-Za-z\d@$!%?&]{8,}$/;
-    setIsValidPassword(passwordRegex.test(inputValue));
-  };  
 
-  const handleChangeName = (event) => {
-      // Convert the entered name to uppercase
-      const inputValue = event.target.value.toUpperCase();
-      setUsername(inputValue);
+  const validateName = (name) => {
+    const namePattern = /^[a-zA-Z\s]+$/;
+    if(name==""){
+      setNameError('')
+    }
+    else if (!namePattern.test(name)) {
+      setNameError('Name should contain only alphabetical characters');
+    } else {
+      setNameError('');
+    }
+ 
   };
-  const handleSubmit=(event)=>{
-    console.log("submit")
-    if(isValidEmail&&isValidPassword)
-    {
-      console.log(email,password,username)
-    }
-    else{
-      console.log("invalid")
-    }
-  }
 
+  const validateEmail = (email) => {
+    const emailPattern = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+    if(email==""){
+      setEmailError('')
+    }
+   else  if (!emailPattern.test(email)) {
+      setEmailError('Invalid email format');
+    } else {
+      setEmailError('');
+    }
+  };
+
+
+
+  const handleSubmit = async(e) => {
+    e.preventDefault();
+    validateName(name);
+    validateEmail(email);
+    const formData = {
+      name:name,
+      email:email,
+      password:password,
+      userRole:ROLE
+
+    };
+    
+
+    if (nameError === '' && emailError === '' && passwordError === '') {
+    
+      try{
+        console.log("ram")
+        const response = await axios.post('http://localhost:8080/api/ecav1/users/register',formData);
+        console.log(response.status)
+        if(response.status==200){
+          sessionStorage.setItem('email',email)
+         navigate('/verify-otp')
+        }
+      
+    }
+    catch(error) {
+      if (error.response) {
+        // Server responded with a status code outside 2xx range
+        console.error('Server error:', error.response.data, error.response.status);
+      } else if (error.request) { 
+        // Server didn't respond 
+        console.error('Request failed, could not reach server.'); 
+      } else {
+        // Error setting up the request
+        console.error('Error creating request:', error.message);
+      }
+    }
+      
+    }
+  };
+  
   return (
-    <section className="mt-8 flex justify-center">
-      <div className="flex-col justify-end   bg-blue-700 h-[500px] w-80">
-        <div className=" flex-col h-[300px]">
-          <div className="mt-8 pl-8 text-white text-3xl">Looks like you're new here!</div>
-          <div className="mt-8 pl-8 text-gray-400 text-lg">
-          Sign up with your email  to get started
+    <div className="flex min-h-screen items-center justify-center bg-gray-100 shadow-lg">
+      <div className='justify-center bg-blue-500 w-1/5 shadow-md rounded-sm'>
+        <h1 className='mt-8 px pl-10 text-white text-3xl '>Looks like you're new here!</h1>
+        <p className='mt-8 pl-10 pr-10 text-rose-100 text-lg'>Sign up with your mobile number to get started</p>
+        <p className="mt-6 pl-10 pr-10 text-rose-100 text-lg">
+                {ROLE === "SELLER"
+                  ? "Register to access dashboard, list products and  orders."
+                  : "Register to shop, order and access cart."}
+              </p>
+        <img className=" pl-12 mt-20 mb-8"
+ src="/src/Images/login bottom logo.png" alt="images"  />
+      </div>
+    
+      <form onSubmit={handleSubmit} className='bg-white  shadow-md rounded-sm p-10 w-1/3 border- '>
+        <div className='relative mt-5'>
+         
+          <input
+          autoComplete='off'
+          className=" peer placeholder-transparent h-10 w-full border-b-2 focus:outline-none "
+            type="text"
+            id="name"
+            name="name"
+            value={name}
+            onChange={handleNameChange}
+           
+          />
+           <label htmlFor="name" className="absolute left-0  text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 
+              peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm">Enter your name here</label>
+          <div className='  h-6' >{nameError && <div className="error text-red-600 text-xs">{nameError} </div>}
           </div>
         </div>
 
-        <div className="">
-          <img
-            className=" pl-12"
-            src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/login_img_c4a81e.png"
+        <div className='relative mt-5'>
+          
+          <input
+           autoComplete='off'
+           className=" peer placeholder-transparent h-10 w-full border-b-2 focus:outline-none "
+           type="email"
+            id="email"
+            name="email"
+            key={"email"}
+
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              validateEmail(e.target.value);
+            }}
+           
+         
+            
+            required
           />
+          <label htmlFor="email" className="absolute left-0  text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 hover:cursor-pointer
+              peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm">Enter the gmail</label>
+         <div  className='  h-10'>
+          {emailError && <div className="error text-xs text-red-600"> {emailError} </div>}
         </div>
-      </div>
-      <div className=" h-[500px] border-2 border-red-100 w-[500px]">
-        <div className="relative mt-8 pl-3 pr-2 ">
-          <form  onSubmit={handleSubmit} >   
-            <input type="text" placeholder='Enter your Name' value={username} onChange={handleChangeName} className='p-2 border-b-2  w-full outline-none focus:border-blue-700'/>
-            
-            <input placeholder='Enter Your Email'  type="email" value={email}  onChange={handleChangeEmail} className={!isValidEmail ? 'mt-2 p-2 border-b-2  w-full outline-none border-red-500' : 'mt-2 p-2 border-b-2  w-full outline-none focus:border-blue-700'} />          
-            {!isValidEmail && (<p className="text-red-500 text-sm">Please enter a valid email address</p> )}
-             
-             <input type="text" placeholder='Enter Your Password' value={password} onChange={handleChangePassword} className={!isValidPassword?'mt-2 p-2 border-b-2  w-full outline-none focus:border-red-700':'mt-2 p-2 border-b-2  w-full outline-none focus:border-blue-700' }/>
-             {!isValidPassword && (<p className="text-red-500 text-sm">At least 8 characters, at least one uppercase letter, one lowercase letter, one number, and one special character</p> )}
-            
-            <div className='mt-8 text-xs'>By continuing, you agree to Flipkart's Terms of Use and Privacy Policy.</div>
-            <div className='mt-4 w-full h-12 bg-orange-500' >
-              <Link onClick={handleSubmit} className=" flex justify-center w-full h-12" >
-                <span className='mt-3  w-28 whitespace-nowrap   text-white font-bold'>Sign Up</span>
-              </Link>
-            </div>
-            <div className='mt-4 w-full h-12 bg-white shadow-lg'>
-              <Link onClick={()=>window.location.href="./login"} className=" flex justify-center w-full h-12">
-                <span className='text-blue-500 mt-3 whitespace-nowrap font-bold'>Existing User? Login</span>
-              </Link>
-            </div>
-
-          </form>
         </div>
-      
-      </div>
-    </section>
-  )
-}
 
-export default Register
+        <div className='relative mt-1'>
+          
+          <input
+           autoComplete='off'
+           className=" peer placeholder-transparent h-10 w-full border-b-2 focus:outline-none "
+            type="password"
+            id="password"
+            name="password"
+           
+            onChange={(e) => {
+              setPassword(e.target.value);
+              
+            }}
+            required
+          />
+          <label htmlFor="password" className="absolute left-0  text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 hover:cursor-pointer
+              peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm">Enter the Password:</label>
+              <div className='  h-10'>
+          {passwordError && <div className=" text-xs text-red-600">{passwordError} </div>}
+          </div>
+
+
+        </div>
+        <div className=' text-xs mb-5 input-focus:translate-y-20'>By continuing, you agree to Filpkart's <a className='text-blue-500' href="">Terms</a>  and <a className='text-blue-500' href="">Privicy Policy</a></div>
+
+
+        <button className='bg-orange-600 rounded-xl p-3 text-white w-full ' type="submit">Submit</button>
+      <Link to={'/login'}>
+        <button className={" bg-white border-b-2 rounded-xl p-3 text-blue-800 shadow-md font-bold w-full mt-7 mb-6 "} type="submit">Existing User?Log in</button> 
+        </Link>
+      </form>
+    </div>
+  );
+};
+
+export default Register;
