@@ -42,7 +42,7 @@ public class UserController {
 
 	@GetMapping("test")
 	public String getMethodName() {
-		return jwtService.genaretAccessToken("ram", "CUSTOMER");
+		return jwtService.generateAccessToken("ram", "CUSTOMER");
 	}
 	
 
