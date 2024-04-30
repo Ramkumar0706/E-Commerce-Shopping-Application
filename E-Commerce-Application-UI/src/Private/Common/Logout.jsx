@@ -1,24 +1,29 @@
 import React, { useEffect, useState } from "react";
-import axios from 'axios';
+import axios from "axios";
 
 const Logout = ({ doAppear }) => {
   const [isSubmited, setIsSubmited] = useState(false);
-  
-  const [loginRequested, setLoginRequested] = useState(false)
+
+  const [loginRequested, setLoginRequested] = useState(false);
 
   const handleLogout = async () => {
     try {
+      const response = await axios.post(
+        "http://localhost:8080/api/ecav1/user/logout",
+        "",
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+      console.log(response.status);
 
-    const response = await  axios.post('http://localhost:8080/api/ecav1/user/logout',(''),{
-      headers:{
-        'Content-Type': 'application/json'
-      },withCredentials:true})
-console.log(response.status)
-    
       if (response.status == 200) {
         localStorage.clear();
-       window.location.reload();
-      } 
+        window.location.reload();
+      }
     } catch (error) {
       console.log(error);
       setIsSubmited(false);
@@ -40,14 +45,16 @@ console.log(response.status)
         Are you sure you want to logout?
       </p>
       <div className="mt-4 w-full">
-        <button className="font-bold rounded-lg w-full min-w-32 px-4 py-2  hover: bg-slate-400" onClick={() => {
+        <button
+          className="font-bold rounded-lg w-full min-w-32 px-4 py-2  hover: bg-slate-400"
+          onClick={() => {
             console.log("submitted...");
-            setIsSubmited(true)
-          }}>
-            Logout
-            </button>
-          
-        
+            setIsSubmited(true);
+          }}
+        >
+          Logout
+        </button>
+
         <button
           className=" font-bold rounded-lg w-full min-w-32 px-4 py-2 text-white bg-slate-600 hover:bg-standard_black my-2"
           onClick={() => doAppear(false)}
