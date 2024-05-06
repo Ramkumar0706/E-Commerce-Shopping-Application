@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;import com.retail.ecom.enums.ContactPriority;
 import com.retail.ecom.exception.AddressNotFoundByIdException;
 import com.retail.ecom.exception.ContactLimitOverFlowException;
+import com.retail.ecom.exception.ContactNotFoundByIdException;
 import com.retail.ecom.model.Address;
 import com.retail.ecom.model.Contact;
 import com.retail.ecom.repository.AddressRepository;
@@ -53,6 +54,25 @@ public class ContactServiceImpl  implements ContactService{
 				.name(contact.getName())
 				.email(contact.getEmail())
 				.phoneNumber(contact.getPhoneNumber()).build();
+	}
+	
+	@Override
+	public ResponseEntity<ResponseStructure<ContactResponse>> updateContact(ContactRequest contactRequest,
+			int contactId) {
+		
+		Contact contact2=contactRepository.findById(contactId).map(contact -> {
+			return contactRepository.save(mapToContact(contact,contactRequest));
+		}).orElseThrow(() -> new ContactNotFoundByIdException("contact not found by id"));
+		return ResponseEntity.ok(new ResponseStructure<ContactResponse>().setData(maptoContactResponse(contact2))
+				.setMessage("update contact").setStatuscode(HttpStatus.OK.value()));
+	}
+	
+	private Contact mapToContact(Contact contact,ContactRequest request) {
+		contact.setEmail(request.getEmail());
+		contact.setName(request.getName());
+		contact.setPhoneNumber(request.getPhoneNumber());
+		contact.setPriority(request.getPriority());
+		return contact;
 	}
 
 }

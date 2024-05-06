@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.retail.ecom.enums.AddressType;
 import com.retail.ecom.enums.UserRole;
+import com.retail.ecom.exception.AddressNotFoundByIdException;
 import com.retail.ecom.exception.AddressNotFoundByUser;
 import com.retail.ecom.exception.ContactNotFoundByUser;
 import com.retail.ecom.jwt.JwtService;
@@ -39,33 +40,41 @@ public class AddressServiceImpl implements AddressService{
 	private ResponseStructure<AddressResponse> responseStructure;
 
 	@Override
-	public ResponseEntity<ResponseStructure<AddressResponse>> addAddress(@Valid AddressRequest addressRequest, String accesstoken) {
-		System.out.println("hello iam ram");
-		String username = jwtService.getUsername(accesstoken);
-		System.out.println("hello iam kumar");
-		return  userRepostiory.findByUsername(username).map(user->{
-			Address address=null;
-			if(user.getUserRole()==UserRole.SELLER) {
-				if(((Seller)user).getAddress()!=null) {
-					address = addressRepository.save(mapToAddress(addressRequest,new Address()));
-					((Seller)user).setAddress(address);
-					userRepostiory.save(user);
-				}
-			}
-			if(user.getUserRole()==UserRole.CUSTOMER) {
-				if(((Customer)user).getAddress().size()<5) {
-					address=addressRepository.save(mapToAddress(addressRequest,new Address()));
-					((Customer)user).getAddress().add(address);
-					userRepostiory.save(user);
-				}
-			}
-			return ResponseEntity.ok().body(responseStructure.setStatuscode(HttpStatus.OK.value())
-					.setMessage("the address added successfully")
-					.setData(mapToAddressResponse(address)));
-
-		}).orElseThrow(()->new UsernameNotFoundException("user is not found"));
-
+	public ResponseEntity<ResponseStructure<AddressResponse>> addAddress( AddressRequest addressRequest, String accessToken) {
+	    String username = jwtService.getUsername(accessToken);
+	    System.out.println(addressRequest.getState());
+	    return userRepostiory.findByUsername(username)
+	            .map(user -> {
+	                Address address = mapToAddress(addressRequest, new Address()); // Instantiate address here
+	                if (user.getUserRole() == UserRole.SELLER) {
+	                    if (((Seller) user).getAddress()== null) {
+	                        address = addressRepository.save(address); // Save address here
+	                        ((Seller) user).setAddress(address);
+	                        userRepostiory.save(user);
+	                    }
+	                } else if (user.getUserRole() == UserRole.CUSTOMER) {
+	                    if (((Customer) user).getAddress().size() < 5) {
+	                        address = addressRepository.save(address); // Save address here
+	                        ((Customer) user).getAddress().add(address);
+	                        userRepostiory.save(user);
+	                    }
+	                }
+	                return ResponseEntity.ok().body(responseStructure.setStatuscode(HttpStatus.OK.value())
+	                        .setMessage("The address was added successfully")
+	                        .setData(mapToAddressRespons(address)));
+	            })
+	            .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 	}
+
+	private AddressResponse mapToAddressRespons(Address address) {
+		List<ContactResponse> mapToContactResponses =null;
+		return AddressResponse.builder().addressId(address.getAddressId()).streetAddress(address.getStreetAddress())
+				.streetAddressAdditional(address.getStreetAddressAdditional()).city(address.getCity())
+				.state(address.getState()).pincode(address.getPincode()).addressType(address.getAddressType())
+				. contacts( mapToContactResponses )
+				.build();
+	}
+	
 	private AddressResponse mapToAddressResponse(Address address) {
 		List<ContactResponse> mapToContactResponses =null;
 		if(address.getContacts()!=null) {
@@ -101,36 +110,35 @@ public class AddressServiceImpl implements AddressService{
 		address.setCity(addressRequest.getCity());
 		address.setState(addressRequest.getState());
 		address.setPincode(addressRequest.getPincode());
+		address.setAddressType(addressRequest.getAddressType());
 		return address;
 	}
 	@Override
 	public ResponseEntity<?> findAddressByUser(String accessToken) {
-		String username = jwtService.getUsername(accessToken);
-		return userRepostiory.findByUsername(username).map(user->{
-			List<Address> addresses=null;
-			Address address=null;
-			List<Contact> contacts=null;
-			if(user.getUserRole()==UserRole.SELLER) {
-				address=((Seller)user).getAddress();
-				if(address==null) throw new AddressNotFoundByUser("The User don't have address");
-				//contacts = address.getContacts();
-				//if(contacts==null)throw new ContactNotFoundByUser("the user don't have any contact");
-				return ResponseEntity.ok().body(responseStructure.setData(mapToAddressResponse(address)));
-			}
-			if(user.getUserRole()==UserRole.CUSTOMER) {
-				addresses=((Customer)user).getAddress();
-				if(addresses==null) throw new AddressNotFoundByUser("The User don't have address");
-				//contacts = address.getContacts();
-				//if(contacts==null)throw new ContactNotFoundByUser("the user don't have any contact");
-				return ResponseEntity.ok().body(responseStructure.setLists(mapToAddressResponseList(addresses)));
-			}
+	    String username = jwtService.getUsername(accessToken);
+	    return userRepostiory.findByUsername(username)
+	            .map(user -> {
+	                List<Address> addresses = null;
+	                Address address = null;
+	                List<Contact> contacts = null;
+	                if (user.getUserRole() == UserRole.SELLER) {
+	                    address = ((Seller) user).getAddress();
+	                } else if (user.getUserRole() == UserRole.CUSTOMER) {
+	                    addresses = ((Customer) user).getAddress();
+	                }
+	                if (address == null && (addresses == null || addresses.isEmpty())) {
+	                    throw new AddressNotFoundByUser("The user doesn't have any addresses.");
+	                }
 
-
-
-			return null;
-		}
-				).orElseThrow(()->new UsernameNotFoundException("user is not found"));
+	                if (address != null) {
+	                    return ResponseEntity.ok().body(responseStructure.setData(mapToAddressResponse(address)));
+	                } else {
+	                    return ResponseEntity.ok().body(responseStructure.setLists(mapToAddressResponseList(addresses)));
+	                }
+	            })
+	            .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 	}
+
 
 	private List<AddressResponse> mapToAddressResponseList(List<Address> addresses)
 	{
@@ -142,6 +150,28 @@ public class AddressServiceImpl implements AddressService{
 		}
 		return addressResponses;
 	}	
+	
+	@Override
+	public ResponseEntity<ResponseStructure<AddressResponse>> updateAddress(AddressRequest addressRequest,
+			int addressId) {
+		return addressRepository.findById(addressId).map(address -> {
+			address=addressRepository.save(mapToAddress(address, addressRequest));
+		
+		return ResponseEntity.ok(new ResponseStructure<AddressResponse>()
+				.setData(mapToAddressResponse(address))
+				.setStatuscode(HttpStatus.OK.value())
+				.setMessage("address updated"));
+		}).orElseThrow(()-> new AddressNotFoundByIdException("address not found by id"));
+	}
+	private Address mapToAddress(Address address,AddressRequest addressRequest) {
+		address.setAddressType(addressRequest.getAddressType());
+		address.setCity(addressRequest.getCity());
+		address.setPincode(addressRequest.getPincode());
+		address.setState(addressRequest.getState());
+		address.setStreetAddress(addressRequest.getStreetAddress());
+		address.setStreetAddressAdditional(addressRequest.getStreetAddressAdditional());
+		return address;
+	}
 
 
 }

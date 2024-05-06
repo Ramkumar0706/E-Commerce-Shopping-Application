@@ -11,6 +11,8 @@ import jakarta.validation.Valid;
 public interface ContactService {
 
 	public ResponseEntity<ResponseStructure<ContactResponse>> addContact( ContactRequest contactRequest, int addressId);
+
+	ResponseEntity<ResponseStructure<ContactResponse>> updateContact(ContactRequest contactRequest, int contactId);
 	
 
 }

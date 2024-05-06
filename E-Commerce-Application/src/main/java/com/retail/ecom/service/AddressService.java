@@ -13,6 +13,8 @@ public interface AddressService {
 	ResponseEntity<ResponseStructure<AddressResponse>> addAddress( AddressRequest addressRequest,String accessToken);
 
 	ResponseEntity<?> findAddressByUser(String accessToken);
+
+	ResponseEntity<ResponseStructure<AddressResponse>> updateAddress(AddressRequest addressRequest, int addressId);
 	
 
 }
