@@ -11,6 +11,7 @@ import { TbBoxSeam } from "react-icons/tb";
 import { FaRegBell } from "react-icons/fa6";
 import { PiHeadset } from "react-icons/pi";
 import { BsDownload } from "react-icons/bs";
+import { RxDashboard } from "react-icons/rx";
 import { IoCartOutline } from "react-icons/io5";
 import { LuBoxes } from "react-icons/lu";
 import { useAuth } from "../Auth/AuthProvider";
@@ -128,7 +129,11 @@ const Headers = () => {
             />
           </div>
         ) : authenticated && role === "SELLER" ? (
+          <div className="flex items-center justify-evenly  w-1/2 ">
+          
+          <HeaderLink icon={<RxDashboard />} link={"/sellerDashBoard"} name={"DashBoard"}/>
           <HeaderLink icon={<LuBoxes />} link={"/orders"} name={"Orders"} />
+          </div>
         ) : (
           !authenticated && (
             <HeaderLink
