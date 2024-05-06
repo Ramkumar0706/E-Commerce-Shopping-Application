@@ -16,6 +16,13 @@ function MyProfile() {
         name={"AddAddress"}
         icon={<FaRegAddressBook />}
       />
+      <HeaderLink
+        link={"/addImage"}
+        name={"AddImage"}
+        icon={<FaRegAddressBook />}
+      />
+
+
     </div>
   );
 }

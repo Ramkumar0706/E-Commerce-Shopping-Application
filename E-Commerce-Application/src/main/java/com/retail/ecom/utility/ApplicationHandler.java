@@ -5,6 +5,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.retail.ecom.exception.AddressNotFoundByIdException;
+import com.retail.ecom.exception.AddressNotFoundByUser;
+import com.retail.ecom.exception.ContactLimitOverFlowException;
+import com.retail.ecom.exception.ContactNotFoundByIdException;
+import com.retail.ecom.exception.ContactNotFoundByUser;
+import com.retail.ecom.exception.ImageNotFormatedExcption;
+import com.retail.ecom.exception.ImageTypeInvalidException;
 import com.retail.ecom.exception.InvalidEmailException;
 import com.retail.ecom.exception.InvalidUserRoleSpecfiedException;
 import com.retail.ecom.exception.OTPExpiredException;
@@ -50,6 +57,41 @@ public class ApplicationHandler {
 	@ExceptionHandler
 	public ResponseEntity<ErrorStructure<String>> handeleInvalidEmailException(InvalidEmailException excption){
 		return errorResponse(HttpStatus.BAD_REQUEST,excption.getMessage() , "please enter valid email");
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handeleAddressNotFoundByIdException(AddressNotFoundByIdException excption){
+		return errorResponse(HttpStatus.BAD_REQUEST,excption.getMessage() , "address is not found by Id");
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handeleAddressNotFoundByUserException(AddressNotFoundByUser excption){
+		return errorResponse(HttpStatus.BAD_REQUEST,excption.getMessage() , "address is not found by current user");
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handeleContactLimitOverFlowException(ContactLimitOverFlowException excption){
+		return errorResponse(HttpStatus.BAD_REQUEST,excption.getMessage() , "contact limit is exceeded");
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handeleContactNotFoundByIdException(ContactNotFoundByIdException excption){
+		return errorResponse(HttpStatus.BAD_REQUEST,excption.getMessage() , "contact not found by id");
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handeleContactNotFoundByUser(ContactNotFoundByUser excption){
+		return errorResponse(HttpStatus.BAD_REQUEST,excption.getMessage() , "contact is not found by User");
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handeleImageNotFormatedExcption(ImageNotFormatedExcption excption){
+		return errorResponse(HttpStatus.BAD_REQUEST,excption.getMessage() , "Image is not formated type ");
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handeleImageTypeInvalidException(ImageTypeInvalidException excption){
+		return errorResponse(HttpStatus.BAD_REQUEST,excption.getMessage() , "ImageType is not valid");
 	}
 
 }

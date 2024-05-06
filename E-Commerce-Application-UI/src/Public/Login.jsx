@@ -27,21 +27,21 @@ function Login() {
     }
     );
      
-      if(response.status==200){
-        
-        const responseData={
-          userId:response.data.data.userId,
-          username:response.data.data.username,
-          role:response.data.data.role,
-          authenticated:true
-        }
-        
-        setUser(responseData);
-       // setUser({ ...user, ...responseData });
-        console.log("User updated:", user); 
-       
-       navigate('/')
-      }
+    if((await response).status==200) 
+    {
+      const userData={
+        userId:(await response).data.data.userId,
+        username:(await response).data.data.username,
+        role:(await response).data.data.role,
+        authenticated:true,
+        accessExpiration:new Date(new Date().getTime()+(await response).data.data.accessExpiration),
+        refreshExpiration:new Date(new Date().getTime()+(await response).data.data.refreshExpiration),
+      };
+      localStorage.setItem("authResponse",JSON.stringify((userData)));
+      setUser(userData);
+
+      navigate("/");
+    }
     
   }
   catch(error) {

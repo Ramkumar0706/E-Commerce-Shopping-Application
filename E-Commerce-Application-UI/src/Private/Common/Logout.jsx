@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Logout = ({ doAppear }) => {
+  const navigate=useNavigate();
   const [isSubmited, setIsSubmited] = useState(false);
 
   const [loginRequested, setLoginRequested] = useState(false);
@@ -15,14 +17,17 @@ const Logout = ({ doAppear }) => {
           headers: {
             "Content-Type": "application/json",
           },
-          withCredentials: true,
+          withCredentials: true
         }
       );
       console.log(response.status);
 
       if (response.status == 200) {
         localStorage.clear();
+        navigate("/")
         window.location.reload();
+        
+
       }
     } catch (error) {
       console.log(error);

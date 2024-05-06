@@ -20,6 +20,7 @@ import Address from '../Public/Address'
 import Contact from '../Private/Common/Contact'
 import MyProfile from '../Private/Common/MyProfile'
 import ManageAddress from '../Private/Common/ManageAddress'
+import AddImage from '../Private/Seller/AddImage'
 
 const links=[
     {
@@ -43,9 +44,10 @@ const AllRoutes = () => {
         
         (role==="SELLER")?
         routes.push(
-            <Route key={'1'} path='/seller-dashboard' element={<SellerDashboard/>}/>,
+            <Route key={'1'} path='/sellerDashBoard' element={<SellerDashboard/>}/>,
             <Route key={'2'} path='/add-product' element={<AddProduct/>}/>,
-            <Route key={'21'} path='/orders' element={<Orders/>}/>
+            <Route key={'21'} path='/orders' element={<Orders/>}/>,
+            <Route key={'3333'} path='/addImage' element={<AddImage/>}/> 
             
         ):((role==="CUSTOMER")&&
         routes.push(<Route key={'1'} path='/explore' element={<Explore/>}/>,
@@ -53,11 +55,11 @@ const AllRoutes = () => {
         <Route key={'4'}  path='/wishlist' element={<WishList/>}/>
         ))
         routes.push(
-            <Route key={'5'} path='/' element={<Home/>}/>,
-            <Route  path='/address' element={<Address/>}/>,
-            <Route  path='/contact' element={<Contact/>}/>,
-            <Route  path='/myProfile' element={<MyProfile/>}/>,
-            <Route  path='/manageAddress' element={<ManageAddress/>}/>,
+            <Route key={'51'} path='/' element={<Home/>}/>,
+            <Route key={'52'}  path='/address' element={<Address/>}/>,
+            <Route key={'53'}  path='/contact' element={<Contact/>}/>,
+            <Route key={'54'}  path='/myProfile' element={<MyProfile/>}/>,
+            <Route key={'55'}  path='/manageAddress' element={<ManageAddress/>}/>,
             <Route key={'7'} path='/edit-profile' element={<EditProfile/>}/>,
             <Route key={'13'} path='/logout' element={<Logout/>}/>
         )

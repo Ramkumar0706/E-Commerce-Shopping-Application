@@ -1,14 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { RiLoader4Fill, RiUserLocationLine } from "react-icons/ri";
 import axios from "axios";
 import { useAuth } from "../Auth/AuthProvider";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const Address = () => {
+  const location = useLocation(); 
+  const [activeButton, setActiveButton] = useState(null);
+
+  
   const { user } = useAuth();
   const { role, authenticated } = user;
 
   const navigate = useNavigate();
+  const [addressId,setAddressId]=useState("");
   const [streetAddress, setStreetAddress] = useState("");
   const [streetAddressAdditional, setStreetAddressAdditional] = useState("");
   const [city, setCity] = useState("");
@@ -19,13 +24,16 @@ const Address = () => {
   const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
+ 
 
   console.log(streetAddress);
   console.log(streetAddressAdditional);
   console.log(city);
   console.log(pincode);
-  console.log(state);
+  console.log(addressType);
+  console.log(addressId)
   const handleSubmit = async (e) => {
+    
     e.preventDefault();
     console.log("Submitted success");
     const formData = {
@@ -34,24 +42,41 @@ const Address = () => {
       city: city,
       state: state,
       pincode: pincode,
-      addressType: "Home",
+      addressType: addressType,
     };
-    const response = await axios.post(
-      "http://localhost:8080/api/ecav1/addAddress",
-      formData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      }
-    );
+   const url=addressId? `http://localhost:8080/api/ecav1/updateAddress/${addressId}`:"http://localhost:8080/api/ecav1/addAddress"
+    const creidt= {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    };
+    console.log(url)
+    const response =addressId?await axios.put(url,formData,creidt):await axios.post(url,formData,creidt)
+    
     if (response.status == 200) {
       sessionStorage.setItem("addressId", response.data.data.addressId);
-      navigate("/contact");
+
+      addressId?navigate("/myProfile"):navigate("/contact")
     }
     console.log(response.status);
   };
+  const handleButtonClick = (buttonName) => {
+    setActiveButton(buttonName);
+    setAddressType(buttonName)
+  };
+  useEffect(() => {
+    if (location.state) {
+      const { streetAddress, streetAddressAdditional, city, state, addressType, pincode,addressId} = location.state;
+      setAddressId(addressId)
+      setStreetAddress(streetAddress);
+      setStreetAddressAdditional(streetAddressAdditional);
+      setCity(city);
+      setState(state);
+      setAddressType(addressType);
+      setPincode(pincode);
+    }
+  }, [location.state]);
 
   return (
     <div className="flex items-center justify-center">
@@ -106,13 +131,33 @@ const Address = () => {
               />
             </div>
           </div>
+          <div className="flex justify-center space-x-4 mb-5">
+      <button
+        className={`bg-blue-300 px-3 py-2 rounded-lg ${
+          activeButton === "HOME" ? "bg-blue-700 hover:bg-blue-700" : "hover:bg-gray-500"
+        }`}
+        onClick={() => handleButtonClick("HOME")}
+      >
+        HOME
+      </button>
+      <button
+        className={`bg-blue-300 px-3 py-2 rounded-lg  ${
+          activeButton === "WORK" ? "bg-blue-700 hover:bg-blue-700" : "hover:bg-gray-500"
+        }`}
+        onClick={() => handleButtonClick("WORK")}
+      >
+        WORK
+      </button>
+    </div>
         </div>
 
+
         <button
-          className=" w-full mb-10 py-2 px-3 rounded-lg bg-prussian_blue text-slate-950 hover:bg-blue-600   border-blue-500"
+          className="bg-emerald-300 w-full mb-10 py-2 px-3 rounded-lg bg-prussian_blue text-slate-950 hover:bg-blue-600   border-blue-500"
           onClick={handleSubmit}
+
         >
-          Submit
+          {addressId?"update":"create"}
         </button>
       </div>
     </div>
@@ -120,30 +165,19 @@ const Address = () => {
 };
 export default Address;
 
-const SubmitBtn = ({ submit, isSubmited, name }) => {
+const SubmitBtn = ({  isSubmited, name, isActive, onClick }) => {
   return (
     <button
-      onClick={submit}
-      disabled={isSubmited}
-      className={` font-bold rounded-lg w-full min-w-32 px-4 py-2 border-2 border-transparent focus:border-blue-600 focus:bg-blue-500 ${
-        isSubmited
-          ? "bg-transparent hover:bg-transparent bg-prussian_blue border-slate-400"
+      onClick={onClick}
+      disabled={isSubmited || isActive}
+      className={`font-bold rounded-lg w-full min-w-32 px-4 py-2 border-2 ${
+        isActive
+          ? "bg-blue-600 text-white"
           : "bg-prussian_blue text-slate-950 hover:bg-blue-600   border-blue-500"
       }`}
       type="button"
     >
-      {isSubmited ? (
-        <div className="flex">
-          <div className="text-lg animate-spin">
-            <RiLoader4Fill />
-          </div>
-          <span className="font-medium font-mono text-xs ml-2 text-slate-700">
-            please wait...
-          </span>
-        </div>
-      ) : (
-        name
-      )}
+      {name}
     </button>
   );
 };

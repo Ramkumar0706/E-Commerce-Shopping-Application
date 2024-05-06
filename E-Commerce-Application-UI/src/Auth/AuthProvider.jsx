@@ -1,9 +1,11 @@
-import React,{createContext,useContext,useState} from 'react'
+import React,{createContext,useContext,useState,useEffect} from 'react'
+import RefreshAuth from './RefreshAuth';
 
 export const authContext=createContext({})
 
 const AuthProvider = ({children}) => {
- 
+  const {auth}=RefreshAuth();
+
     const [user,setUser]=useState({
         userId:"",
         username:"",
@@ -13,6 +15,10 @@ const AuthProvider = ({children}) => {
         RefershExpiration:0
     })
     console.log(user)
+    useEffect(()=>{
+      setUser(auth)
+    },[auth])
+
   return (
     <authContext.Provider value={{user,setUser}}>{children}</authContext.Provider>
     

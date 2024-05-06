@@ -2,6 +2,11 @@ package com.retail.ecom.service.impl;
 
 import java.net.CookieManager;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -197,6 +202,57 @@ public class UserServiceImpl  implements UserService {
 					.setData(mapToAuthResponse(user)).setMessage("user login successfully"));
 		}).get();
 	}
+	
+	@Override
+	public ResponseEntity<SimpleResponseStructure> userLogout(String refreshToken, String accessToken) {
+		if(refreshToken==null&&accessToken==null)throw new UsernameNotFoundException("user is not login");
+		HttpHeaders header=new HttpHeaders();
+		header.add(HttpHeaders.SET_COOKIE, validateCookie("at"));
+		header.add(HttpHeaders.SET_COOKIE, validateCookie("rt"));
+		blockAccessToken(accessToken);
+		blockRefreshToken(refreshToken);
+
+		return ResponseEntity.ok().headers(header).body(simpleResponseStructure.setStatusCode(HttpStatus.OK.value()).setMessage("user Logout successfull"));
+	}
+	
+	public ResponseEntity<ResponseStructure<AuthResponse>> refreshLogin(String accesToken, String refreshToken) {
+		System.out.println(refreshToken);
+		if(refreshToken==null) {
+			throw new IllegalArgumentException("User is not Logged In");
+		}
+		if(accesToken!=null)
+		{
+			accessTokenRepo.findByToken(refreshToken).ifPresent(token->
+			{
+				token.setBlocked(true);
+				accessTokenRepo.save(token);
+			});
+		}
+		Date date=jwtService.getIssueDate(refreshToken);
+		String username=jwtService.getUsername(refreshToken);
+		System.out.println(username+"        rt");
+		System.out.println("USERNAME : "+username);
+		HttpHeaders headers=new HttpHeaders();
+
+		return userRepository.findByUsername(username).map(user->{
+			if(date.before(new Date()))
+				generateAccessToken(user, headers);
+			else 
+				headers.add(HttpHeaders.SET_COOKIE,configureCookie("rt", refreshToken,refreshExpiration));
+			generateAccessToken(user, headers);
+			return ResponseEntity.ok().headers(headers).body(new ResponseStructure<AuthResponse>()
+					.setStatuscode(HttpStatus.OK.value()).setMessage("Token is Refresh seccusfully")
+					.setData(mapToAuthResponse(user))
+					);
+		}).get();
+	}
+	private void blockRefreshToken(String refreshToken) {
+		refreshTokenRepo.findByToken(refreshToken).ifPresent((rt)->{
+			rt.setBlocked(true);
+			refreshTokenRepo.save(rt);
+		}
+				);
+	}
 
 	AuthResponse mapToAuthResponse(User user) {
 
@@ -208,36 +264,30 @@ public class UserServiceImpl  implements UserService {
 				.refreshExpiration(refreshExpiration)
 				.role(user.getUserRole()).build();
 	}
-
-
 	private void generateRefresfToken(User user, HttpHeaders headers) {
-		String token = jwtService.genaretAccessToken(user.getUsername(),user.getUserRole().name());
+		String token = jwtService.generateRefreshToken(user.getUsername(),user.getUserRole().name());
 		headers.add(HttpHeaders.SET_COOKIE,configureCookie("rt",token,refreshExpiration));
 		RefreshToken refreshToken=new RefreshToken();
 		refreshToken.setToken(token);
 		refreshToken.setBlocked(false);
-		refreshToken.setExpiration(refreshExpiration);
+		
+		refreshToken.setExpiration(mapToLocalDateAndTime(refreshExpiration));
 		refreshToken.setUser(user);
 		refreshTokenRepo.save(refreshToken);
-
 	}
-
-
-
-
-
 	private void generateAccessToken(User user, HttpHeaders headers) {
-		String token = jwtService.genaretAccessToken(user.getUsername(),user.getUserRole().name());
+		String token = jwtService.generateAccessToken(user.getUsername(),user.getUserRole().name());
 		headers.add(HttpHeaders.SET_COOKIE,configureCookie("at",token,accessExpiration));
 
 		AccessToken accessToken=new AccessToken();
 		accessToken.setToken(token);
 		accessToken.setBlocked(false);
-		accessToken.setExpiration(accessExpiration);
+		
+		
+		accessToken.setExpiration(mapToLocalDateAndTime(accessExpiration));
+		System.out.println(accessExpiration);
 		accessToken.setUser(user);
 		accessTokenRepo.save(accessToken);
-
-
 	}
 
 	private String configureCookie(String name, String value, long maxAge) {
@@ -283,35 +333,6 @@ public class UserServiceImpl  implements UserService {
 	}
 
 
-
-
-
-
-
-	@Override
-	public ResponseEntity<SimpleResponseStructure> userLogout(String refreshToken, String accessToken) {
-		HttpHeaders header=new HttpHeaders();
-		header.add(HttpHeaders.SET_COOKIE, validateCookie("at"));
-		header.add(HttpHeaders.SET_COOKIE, validateCookie("rt"));
-		blockAccessToken(accessToken);
-		blockRefreshToken(refreshToken);
-
-		return ResponseEntity.ok().headers(header).body(simpleResponseStructure.setStatusCode(HttpStatus.OK.value()).setMessage("user Logout successfull"));
-	}
-	private void blockRefreshToken(String refreshToken) {
-		refreshTokenRepo.findByToken(refreshToken).ifPresent((rt)->{
-			rt.setBlocked(true);
-			refreshTokenRepo.save(rt);
-		}
-				);
-	}
-
-
-
-
-
-
-
 	private void blockAccessToken(String accessToken) {
 		accessTokenRepo.findByToken(accessToken).ifPresent((at)->{
 			at.setBlocked(true);
@@ -319,11 +340,6 @@ public class UserServiceImpl  implements UserService {
 			
 		});
 	}
-
-
-
-
-
 
 
 	public String validateCookie(String name) {
@@ -336,17 +352,24 @@ public class UserServiceImpl  implements UserService {
 				.sameSite("Lax")
 				.build().toString();
 	}
-
-
-
-
-
-
-
-	@Override
-	public ResponseEntity<ResponseStructure<AuthResponse>> refreshLogin(String refreshToken, String accessToken) {
-		return null;
+	private LocalDateTime mapToLocalDateAndTime(long millisecond) {
+		//Instant instant=Instant.ofEpochMilli(millisecond);
+	//	LocalDateTime localDateTime=LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+		LocalDateTime l=LocalDateTime.now();
+		Instant currentDate =l.atZone(ZoneId.systemDefault()).toInstant();
+		Instant plusMillis = currentDate.plusMillis(millisecond);
+		LocalDateTime localDateTime =LocalDateTime.ofInstant(plusMillis, ZoneId.systemDefault());
+		return  localDateTime;
+		
 	}
+
+
+
+
+
+
+
+	
 
 
 
