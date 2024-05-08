@@ -57,7 +57,7 @@ public class ImageServiceimpl implements ImageService  {
 	
 	@Override
 	public ResponseEntity<byte[]> findById(String imageId) {
-		
+
 
 			return imageRepository.findById(imageId).map(image -> {
 				return ResponseEntity.ok()
@@ -66,6 +66,17 @@ public class ImageServiceimpl implements ImageService  {
 						.body(image.getImageByte());
 			}).orElseThrow(()->new ImageNotFoundByIdException("image not prasent"));
 		}
+
+	@Override
+	public ResponseEntity<byte[]> findByproductId(int productId) {
+		
+		return imageRepository.findByProductIdAndImageType(productId,ImageType.COVER).map(image -> {
+			return ResponseEntity.ok()
+					.contentLength(image.getImageByte().length)
+					.contentType(MediaType.valueOf(image.getContentType()))
+					.body(image.getImageByte());
+		}).orElseThrow(()->new ImageNotFoundByIdException("image not prasent"));
+	}
 		
 			
 

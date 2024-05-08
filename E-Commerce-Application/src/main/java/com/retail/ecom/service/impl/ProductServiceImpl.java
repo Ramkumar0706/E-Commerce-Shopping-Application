@@ -4,17 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.retail.ecom.controller.ImageController;
+import com.retail.ecom.enums.ImageType;
 import com.retail.ecom.exception.ProductNotFoundById;
 import com.retail.ecom.model.Product;
 import com.retail.ecom.repository.ProductRepository;
 import com.retail.ecom.requestdto.ProductRequest;
+import com.retail.ecom.requestdto.SearchFilter;
 import com.retail.ecom.responsedto.ProductResponse;
 import com.retail.ecom.service.ProductService;
+import com.retail.ecom.utility.ProductSpecification;
 import com.retail.ecom.utility.ResponseStructure;
 
 import lombok.AllArgsConstructor;
@@ -24,6 +29,9 @@ public class ProductServiceImpl implements ProductService{
 	
 	private ProductRepository productRepository;
 	private ResponseStructure<ProductResponse> response;
+	ResponseStructure<List<ProductResponse>> responseStructure;
+	private ImageController controller;
+	private ProductSpecification productSpecification;
 
 	@Override
 	public ResponseEntity<ResponseStructure<ProductResponse>> addProduct(ProductRequest productRequest) {
@@ -37,6 +45,7 @@ public class ProductServiceImpl implements ProductService{
 	}
 
 	private ProductResponse mapToProductResponse(Product saveProduct) {
+	//	System.out.println(controller.imageFindByProductId(saveProduct.getProductId(), ImageType.COVER));
 		return ProductResponse.builder()
 				.productId(saveProduct.getProductId())
 				.productBrand(saveProduct.getProductBrand())
@@ -46,6 +55,8 @@ public class ProductServiceImpl implements ProductService{
 				.productQuantity(saveProduct.getProductQuantity())
 				.category(saveProduct.getCategory())
 				.availabilityStatus(saveProduct.getAvailabilityStatus())
+				.coverImage(controller.imageFindByProductId(saveProduct.getProductId(), ImageType.COVER))
+			.normalImage(controller.imagesFindByProductId(saveProduct.getProductId(), ImageType.NORMAL))
 //				.images(saveProduct)
 				.build();
 		
@@ -60,6 +71,7 @@ public class ProductServiceImpl implements ProductService{
 				.productPrice(productRequest.getProductPrice())
 				.productQuantity(productRequest.getProductQuantity())
 				.category(productRequest.getCategory())
+				
 				.availabilityStatus(productRequest.getAvailabilityStatus())
 				.build();
 	}
@@ -81,22 +93,26 @@ public class ProductServiceImpl implements ProductService{
 	}
 
 	@Override
-	public ResponseEntity<ResponseStructure<ProductResponse>> findProducts() {
+	public ResponseEntity<?> findProducts() {
         List<Product> products = productRepository.findAll(); 
         List<ProductResponse> productResponses = convertToProductResponses(products);
-		return null;
+		
         
-//       return ResponseEntity.ok(response.setStatuscode(HttpStatus.CREATED.value())
-//				.setMessage("product added successfully")
-//				.setData(mapToProductResponse(productResponses)));;
+        return ResponseEntity.ok().body(responseStructure.setData(productResponses));
         
     }
 
     private List<ProductResponse> convertToProductResponses(List<Product> products) {
         List<ProductResponse> responses = new ArrayList<>();
+        
         for (Product product : products) {
-            responses.add(mapToProductResponse(product));
-        }
+        	
+        	ProductResponse response2 = mapToProductResponse(product);
+        	//System.out.println(response2.getProductId()+" ");
+            responses.add(response2);
+        	}
+        
+       
         return responses;
 	}
 
@@ -112,6 +128,20 @@ public class ProductServiceImpl implements ProductService{
 		}).orElseThrow(()-> new ProductNotFoundById("Product is not present by this id"));
 	
 
+	}
+
+	
+
+	@Override
+	public ResponseEntity<?> findProductByFilter(SearchFilter searchFilter) {
+		Specification<Product> specification = productSpecification.buildSpecification(searchFilter);
+		 List<Product> products = productRepository.findAll(); 
+	        List<ProductResponse> productResponses = convertToProductResponses(products);
+			
+	        
+	        return ResponseEntity.ok().body(responseStructure.setData(productResponses));
+		
+		
 	}
 	
 	

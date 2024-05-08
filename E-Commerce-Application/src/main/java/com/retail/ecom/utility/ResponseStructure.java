@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.retail.ecom.responsedto.ProductResponse;
+
 import lombok.Getter;
 
 @Getter
@@ -16,6 +18,8 @@ public class ResponseStructure<T> {
 	private String message;
 	private T data;
 	private List<T> lists;
+	
+	
 	
 	
 	public ResponseStructure<T> setLists(List<T> lists) {
@@ -36,6 +40,14 @@ public class ResponseStructure<T> {
 	public ResponseStructure<T> setData(T data) {
 		this.data = data;
 		return this;
+	}
+
+	public  ResponseStructure<T> setList(List<ProductResponse> productResponses) {
+		// TODO Auto-generthis.lists = lists;
+		this.lists = lists;
+		return this;
+		
+		
 	}
 
 

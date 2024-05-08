@@ -1,4 +1,4 @@
-package com.retail.ecom.service;
+package com.retail.ecom.utility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,10 +9,9 @@ import org.springframework.stereotype.Component;
 import com.retail.ecom.enums.AvailabilityStatus;
 import com.retail.ecom.enums.Category;
 import com.retail.ecom.model.Product;
-import com.retail.ecom.responsedto.SearchFilter;
+import com.retail.ecom.requestdto.SearchFilter;
 
 import jakarta.persistence.criteria.Predicate;
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
