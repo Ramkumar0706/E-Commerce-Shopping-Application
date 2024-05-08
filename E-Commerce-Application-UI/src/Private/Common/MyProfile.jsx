@@ -2,10 +2,18 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { RiGitRepositoryCommitsFill, RiUserLocationLine } from "react-icons/ri";
 import { FaRegAddressBook } from "react-icons/fa6";
+import { useAuth } from "../../Auth/AuthProvider";
+
 function MyProfile() {
+  const { user ,setUser} = useAuth();
+  console.log(user)
   return (
-    <div className="mt-16  w-1/3">
+    <div className="mt-16  w-1/3" >
+     (user.username=='ramkumar908040'? <img   className="rounded-full " src="/src/Images/ramMysorre.jpg" alt="" /> :)
       <FormHeading icon={<RiUserLocationLine />} text={"User Details"} />
+      {
+        
+      }
       <HeaderLink
         link={"/manageAddress"}
         name={"ManageAddress"}

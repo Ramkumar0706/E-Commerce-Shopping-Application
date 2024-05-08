@@ -12,16 +12,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+	import org.springframework.web.bind.annotation.RestController;
 
 import com.retail.ecom.model.Product;
 import com.retail.ecom.repository.ProductRepository;
 import com.retail.ecom.requestdto.ProductRequest;
+import com.retail.ecom.requestdto.SearchFilter;
 import com.retail.ecom.responsedto.ProductResponse;
-import com.retail.ecom.responsedto.SearchFilter;
 import com.retail.ecom.service.ProductService;
-import com.retail.ecom.service.ProductSpecification;
+import com.retail.ecom.utility.ProductSpecification;
 import com.retail.ecom.utility.ResponseStructure;
 
 import lombok.AllArgsConstructor;
@@ -34,7 +33,7 @@ public class ProductController {
 
 	private ProductService productService;
 	private ProductRepository productRepository;
-	private ProductSpecification productSpecification;
+	
 
 	@PreAuthorize("hasAuthority('SELLER')")
 	@PostMapping("/products")
@@ -49,7 +48,7 @@ public class ProductController {
 	}
 
 	@GetMapping("/products")
-	public ResponseEntity<ResponseStructure<ProductResponse>> findProducts(){
+	public ResponseEntity<?> findProducts(){
 		return productService.findProducts();
 	}
 
@@ -62,14 +61,8 @@ public class ProductController {
 
 
 	@GetMapping("/findProduct")
-	public List<Product> findProductByFilter(SearchFilter searchFilter) {
-		Specification<Product> specification = productSpecification.buildSpecification(searchFilter);
-	List<Product> all = productRepository.findAll(specification);
-		for(Product p:all) {
-			System.out.println(p);
-			
-	}
-		return all;
+	public ResponseEntity<?> findProductByFilter(SearchFilter searchFilter) {
+		return productService.findProductByFilter(searchFilter);
 	}
 
 

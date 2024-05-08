@@ -11,4 +11,6 @@ public interface ImageService {
 
 	ResponseEntity<byte[]> findById(String imageId);
 
+	ResponseEntity<byte[]> findByproductId(int productId);
+
 }

@@ -1,4 +1,4 @@
-package com.retail.ecom.responsedto;
+package com.retail.ecom.requestdto;
 
 import org.springframework.stereotype.Component;
 

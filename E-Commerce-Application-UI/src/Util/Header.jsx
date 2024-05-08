@@ -29,7 +29,8 @@ const Headers = () => {
   const [doLogout, setDoLogout] = useState(false);
 
   return (
-    <header className="border-b-2 border-blue-900 fixed z-50 top-0 font-sans w-screen flex justify-center bg-white">
+    
+    <header className=" h-16 border-b-2 border-purple-300 fixed z-50 top-0 font-sans w-screen flex justify-center bg-blue-100">
       <div className="flex justify-around items-center w-1/2 ">
         {/* filpkart logo */}
         <div>
