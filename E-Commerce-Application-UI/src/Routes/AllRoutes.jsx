@@ -21,6 +21,7 @@ import Contact from '../Private/Common/Contact'
 import MyProfile from '../Private/Common/MyProfile'
 import ManageAddress from '../Private/Common/ManageAddress'
 import AddImage from '../Private/Seller/AddImage'
+import ProductDetail from '../Public/ProductDetail'
 
 const links=[
     {
@@ -69,7 +70,7 @@ const AllRoutes = () => {
                 <Route key={'8'} path='/' element={<Home/>}/>,
                 <Route key={'9'} path='/login' element={<Login/>}/>,
                 <Route key={'12'} path='/verify-otp' element={<VerifyOTP/>}/>,
-                
+                <Route key={'12'} path='/productDetail' element={<ProductDetail/>}/>,
                 links.map((nav,i)=>{
                     return (
                         <Route key={'12'} path={nav.path} element={nav.element}/>

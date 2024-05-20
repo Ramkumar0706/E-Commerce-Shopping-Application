@@ -1,54 +1,60 @@
-import React, { useState, useEffect } from 'react';
+// Home.js
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import SearchFilter from './SearchFilter';
+import SearchText from '../Public/SearchText'; 
+import { SearchContext } from './Context/SearchContext';
+import { useNavigate } from 'react-router-dom';
+
+
 
 const Home = () => {
+  const searchContext = useContext(SearchContext);
+
+  
+
+  const { searchResults } = searchContext;
+  
+  console.log(searchResults)
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [page, setPage] = useState(0);
+  const [orderBy, setOrderBy] = useState("ASC");
+  const [sortBy, setSortBy] = useState("category");
+  const [searchFilter, setSearchFilter] = useState({
+    minPrice: 2000,
+    maxPrice: 0,
+    category: null,
+    availability: null
+  });
+  const{minPrice,maxPrice,category,availability}=searchFilter
+  
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      const response = await axios.get('http://localhost:8080/api/ecav1/findProduct', {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        withCredentials: true
-      });
 
-      console.log(response.data);
-      setProducts(response.data.data);
-      setFilteredProducts(response.data.data);
-    };
-
-    fetchProducts();
-  }, []);
-
-  const handleFilter = (filters) => {
-    const filtered = products.filter((product) => {
-      let isMatch = true;
-
-      if (filters.minPrice && Number(product.
-        productPrice
-        ) < filters.minPrice) {
-        isMatch = false;
-      }
-
-      if (filters.maxPrice && Number(product.productPrice) > filters.maxPrice) {
-        isMatch = false;
-      }
-
-      if (filters.category && product.category !== filters.category) {
-        isMatch = false;
-      }
-
-      if (filters.availability && product.availability !== filters.availability) {
-        isMatch = false;
-      }
-
-      return isMatch;
+useEffect(() => {
+  const fetchProducts = async () => {
+    console.log('ram')
+    const response = await axios.get(`http://localhost:8080/api/ecav1/findProduct?page=${page}&orderBy=${orderBy}&sortBy=${sortBy}`, {
+       // Pass formData as params
+       params:searchFilter,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      withCredentials: true
     });
 
-    setFilteredProducts(filtered);
+    console.log(response.data);
+    setProducts(response.data.data);
+    setFilteredProducts(response.data.data);
+    
+  };
+  
+  fetchProducts();
+}, [searchFilter.category, page, orderBy, sortBy]);
+
+
+  const handleFilter = (filters) => {
+    setSearchFilter(filters)
   };
 
   const toggleSearchFilter = () => {
@@ -56,7 +62,12 @@ const Home = () => {
   };
 
   const [showSearchFilter, setShowSearchFilter] = useState(false);
-
+  const navigate = useNavigate();
+const handleProductDetail =(e)=>{
+  navigate("/productDetail",e.target.value)
+}
+  
+ 
   return (
     <div className="container mx-auto px-4 py-8 mt-16">
       <h1 className="text-3xl font-bold mb-4">Products</h1>
@@ -65,19 +76,22 @@ const Home = () => {
         Filter
       </button>
 
-      {showSearchFilter && <div className='absolute w-full  translate-x-5'> <SearchFilter  onFilter={handleFilter} filters={{ minPrice: 0, maxPrice: 0, category: '', availability: '' }} /></div>}
-
-      <div  className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {filteredProducts.map((product) => (
-          <div key={product.Id} className="bg-white shadow-md rounded p-4">
-             <img width={350} height={150} src={`http://localhost:8080/api/ecav1/image/${product.coverImage}`} alt={product.productBrand} />
-           <div className="flex justify-between flex-wrap p-2 ">
-             {product.normalImage.map((image)=>(
-              <img  className='hover:cursor-pointer w-100 h-50' 
-              width={100} height={50} src={`http://localhost:8080/api/ecav1/image/${image}`} 
-              alt={product.productBrand} />
-             ))}
-             </div>
+      {showSearchFilter && <div className='absolute w-full  translate-x-5'> 
+      <SearchFilter onFilter={handleFilter} filters={searchFilter} /></div>}
+   
+      <div className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {(searchResults.length > 0 ? searchResults : filteredProducts).map((product) => (
+          <div key={product.Id} className="bg-white shadow-md rounded p-4  hover:border 4px border-orange-300  cursor-pointer" onClick={
+            handleProductDetail
+          }>
+            <img width={350} height={150} src={`http://localhost:8080/api/ecav1/image/${product.coverImage}`} alt={product.productBrand} />
+            {/* <div className="flex justify-between flex-wrap p-2 ">
+              {product.normalImage.map((image) => (
+                <img className='hover:cursor-pointer w-100 h-50'
+                  width={100} height={50} src={`http://localhost:8080/api/ecav1/image/${image}`}
+                  alt={product.productBrand} />
+              ))}
+            </div> */}
             <h2 className="text-xl font-bold mb-2">{product.productBrand}</h2>
             <p className="text-gray-600 mb-2">{product.productModel}</p>
             <p className="text-gray-600 mb-2">Price: ${product.productPrice}</p>
