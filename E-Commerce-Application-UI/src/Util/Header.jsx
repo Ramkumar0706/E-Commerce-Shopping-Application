@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { GoHeart } from "react-icons/go";
 import { PiDotsThreeVerticalBold, PiUserCircle } from "react-icons/pi";
 import { PiStorefront } from "react-icons/pi";
-import { IoSearchOutline } from "react-icons/io5";
+
 import { MdLogout } from "react-icons/md";
 import { MdKeyboardArrowUp } from "react-icons/md";
 import { MdKeyboardArrowDown } from "react-icons/md";
@@ -16,7 +16,8 @@ import { IoCartOutline } from "react-icons/io5";
 import { LuBoxes } from "react-icons/lu";
 import { useAuth } from "../Auth/AuthProvider";
 import Logout from "../Private/Common/Logout";
-import { RiUserLocationLine } from "react-icons/ri";
+import SearchText from "../Public/SearchText";
+import { SearchContext } from "../Public/Context/SearchContext";
 const Headers = () => {
   const { user } = useAuth();
 
@@ -24,10 +25,15 @@ const Headers = () => {
   console.log(user);
   // console.log(user)
 
+  const { searchResults, setSearchResults } = useContext(SearchContext);
+  
+
   const [loginHovered, setLoginHovered] = useState(false);
   const [optionHovered, setoptionHovered] = useState(false);
   const [doLogout, setDoLogout] = useState(false);
-
+  const handleSearchResults = (results) => {
+    setSearchResults(results); // Call the setSearchResults function with the search results
+  };
   return (
     
     <header className=" h-16 border-b-2 border-purple-300 fixed z-50 top-0 font-sans w-screen flex justify-center bg-blue-100">
@@ -39,15 +45,8 @@ const Headers = () => {
           </Link>
         </div>
         {/* Search Bar */}
-        <div className="rounded-md h-4/6 w-1/2 text-lg flex items-center justify-center bg-blue-50 px-2 py-1">
-          <div className="text-2xl text-slate-500">
-            <IoSearchOutline />
-          </div>
-          <input
-            type="text"
-            placeholder="Search the Product Here!..."
-            className="border-0 rounded-xl bg-blue-50 placeholder:text-slate-500 hover:placeholder:text-slate-400 h-full outline-none px-2 py-2 w-full  text-gray-700"
-          />
+        <div className="rounded-md h-4/6 w-1/2 text-lg flex items-center justify-center bg-blue-50  py-1">
+        <SearchText onSearch={handleSearchResults} />
         </div>
       </div>
       {doLogout && <Logout doAppear={setDoLogout} />}

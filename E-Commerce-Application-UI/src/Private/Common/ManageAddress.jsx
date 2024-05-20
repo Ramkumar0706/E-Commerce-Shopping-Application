@@ -65,7 +65,7 @@ function ManageAddress() {
               "Content-Type": "application/json",
             },
             withCredentials: true,
-          }
+           }
         );
         console.log(response.data.data);
       
@@ -129,8 +129,9 @@ function ManageAddress() {
       <h2>User Details</h2>
       {contacts.length > 0 ? (
         contacts.map((c, index) => (
-          <div className="flex justify-evenly items-center w-1/2">
-            <div key={index} className="flex  justify-between items-center border-2">
+          <div className="">
+            <div key={index} className="
+            ">
               <h1>Contact No: {index + 1}</h1>
               <p>Name: {c.name}</p>
               <p>Phone Number: {c.phoneNumber}</p>
