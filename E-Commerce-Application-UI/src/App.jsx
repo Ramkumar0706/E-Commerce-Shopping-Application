@@ -1,15 +1,20 @@
 import React from 'react'
 import Header from './Util/Header'
-import {Outlet} from 'react-router-dom'
+import {Outlet, Router} from 'react-router-dom'
+
+import { SearchProvider } from './Public/Context/SearchContext'
+
 
 const App = () => {
   return (
-  <div>
-    <Header/>
+    <SearchProvider>
     <div>
-    <Outlet/>
+      <Header />
+      <div>
+        <Outlet />
+      </div>
     </div>
-    </div>
+  </SearchProvider>
   )
 }
 
